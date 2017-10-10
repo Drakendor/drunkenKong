@@ -6,7 +6,7 @@ import org.academiadecodigo.simplegraphics.graphics.Rectangle;
 /**
  * Created by codecadet on 09/10/17.
  */
-public class Field implements Collidable {
+public class  Field implements Collidable {
 
     private Rectangle rectangle;
     private int padding = 10;
@@ -38,6 +38,7 @@ public class Field implements Collidable {
         return true;
     }
 
-
-
+    public int getPadding() {
+        return padding;
+    }
 }
