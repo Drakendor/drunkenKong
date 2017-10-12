@@ -2,6 +2,7 @@ package org.academiadecodigo.bootcamp11.projectDrunkenKong;
 
 import org.academiadecodigo.simplegraphics.graphics.Color;
 import org.academiadecodigo.simplegraphics.graphics.Rectangle;
+import org.academiadecodigo.simplegraphics.graphics.Shape;
 
 /**
  * Created by codecadet on 10/10/17.
@@ -38,6 +39,8 @@ public class WaterBottle implements Movable {
     public void move() {
 
     }
+
+
 
     @Override
     public boolean comparePosition() {
