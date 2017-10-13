@@ -20,6 +20,10 @@ public class Player implements KeyboardHandler, Movable {
     Orientation currentOrie;
     private Keyboard keyboard;
     private String name;
+    private boolean jump = false;
+    private int x;
+    private int y;
+
 
     public Player(String name) {
         this.name = name;
@@ -65,15 +69,15 @@ public class Player implements KeyboardHandler, Movable {
 
     @Override
     public void move() {
-        int x = 0;
-        int y = 0;
+        x = 0;
+        y = 0;
 
         switch (currentOrie) {
             case UP:
                 y = -PIXELS;
                 break;
             case DOWN:
-                y = PIXELS;
+                    y = PIXELS;
                 break;
             case LEFT:
                 x = -PIXELS;
@@ -90,6 +94,7 @@ public class Player implements KeyboardHandler, Movable {
 
     @Override
     public boolean comparePosition() {
+
         return false;
     }
 
@@ -104,6 +109,7 @@ public class Player implements KeyboardHandler, Movable {
                 break;
             case KeyboardEvent.KEY_S:
                 System.out.println("DOWN");
+                System.out.println(rectangle.getY());
                 currentOrie = Orientation.DOWN;
                 break;
 
@@ -119,6 +125,7 @@ public class Player implements KeyboardHandler, Movable {
             case KeyboardEvent.KEY_SPACE:
                 System.out.println("JUMP");
                 currentOrie = Orientation.JUMP;
+                setJump(true);
                 break;
 
             default:
@@ -129,26 +136,6 @@ public class Player implements KeyboardHandler, Movable {
 
     @Override
     public void keyReleased(KeyboardEvent keyboardEvent) {
-       /* int key = keyboardEvent.getKey();
-
-        if (key == KeyboardEvent.KEY_LEFT) {
-            x = 0;
-        }
-        if (key == KeyboardEvent.KEY_SPACE) {
-
-        }
-
-        if (key == KeyboardEvent.KEY_RIGHT) {
-            x = 0;
-        }
-
-        if (key == KeyboardEvent.KEY_UP) {
-            y = 0;
-        }
-
-        if (key == KeyboardEvent.KEY_DOWN) {
-            y = 0;
-        }*/
     }
 
 
@@ -160,6 +147,22 @@ public class Player implements KeyboardHandler, Movable {
         this.alive = alive;
     }
 
+    public boolean isJump() {
+        return jump;
+    }
+
+    public void setJump(boolean jump) {
+        this.jump = jump;
+    }
+
+    public Rectangle getRectangle() {
+        return rectangle;
+    }
+
+
+    public void setRectangle(Rectangle rectangle) {
+        this.rectangle = rectangle;
+    }
 
     public enum Orientation {
 
