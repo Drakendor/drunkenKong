@@ -16,10 +16,7 @@ public class Game {
 
         Player player = new Player("ze");
 
-        while (true) {
-
-            player.move();
-          //  player.keyPressed();
+        
         }
     }
 
