@@ -77,7 +77,7 @@ public class Player implements KeyboardHandler, Movable {
                 y = -PIXELS;
                 break;
             case DOWN:
-                    y = PIXELS;
+                y = PIXELS;
                 break;
             case LEFT:
                 x = -PIXELS;
@@ -93,9 +93,28 @@ public class Player implements KeyboardHandler, Movable {
     }
 
     @Override
-    public boolean comparePosition() {
+    public boolean comparePosition(Collidable collidable) {
 
-        return false;
+        boolean status = false;
+
+        if (collidable instanceof WaterBottle) {
+            WaterBottle waterBottle = (WaterBottle) collidable;
+
+            if (rectangle.getX() == waterBottle.getX() + waterBottle.getWidth()) { //compare position player vs waterBottle
+                status = true;
+            }
+            status = false;
+        }
+
+        if (collidable instanceof Field) {
+            Field field = (Field) collidable;
+
+            if (rectangle.getWidth() == field.getWidth()) {
+                status = true;
+            }
+        }
+
+        return status;
     }
 
     @Override

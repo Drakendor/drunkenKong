@@ -12,14 +12,18 @@ public class WaterBottle implements Movable {
     private Rectangle rectangle;
     private int width = 60;
     private int height = 30;
+    private int x;
+    private int y;
+
 
     public WaterBottle() {
         this.rectangle = new Rectangle(60, 200, width, height);
         draw();
     }
 
-    public WaterBottle(int x, int y){
-
+    public WaterBottle(int x, int y) {
+        this.x = x;
+        this.y = y;
         this.rectangle = new Rectangle(x, y, width, height);
         draw();
     }
@@ -36,14 +40,57 @@ public class WaterBottle implements Movable {
     }
 
     @Override
-    public void move() {
-
+    public void move() {  /// a duvida é aqui!!!
+        while (comparePosition()) {
+            x = (rectangle.getX() + 10);
+        }
+        this.rectangle.translate(x, y);
     }
 
+    public int getX() {
+        return x;
+    }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
 
     @Override
-    public boolean comparePosition() {
-        return false;
+    public boolean comparePosition(Collidable collidable) {
+
+        boolean status = false;
+
+        if (collidable instanceof Field) {
+            Field field = (Field) collidable;
+
+            if (rectangle.getX() + getWidth() == field.getWidth()) {
+                return status = true;
+            }
+        }
+        return status;
     }
 }

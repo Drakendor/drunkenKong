@@ -5,7 +5,7 @@ package org.academiadecodigo.bootcamp11.projectDrunkenKong;
  */
 public interface Collidable extends Drawable {
 
-    boolean comparePosition();
+    boolean comparePosition(Collidable collidable);
 
 
 
