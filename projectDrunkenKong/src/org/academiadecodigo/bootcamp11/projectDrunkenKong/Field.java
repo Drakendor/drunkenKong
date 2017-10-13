@@ -17,11 +17,10 @@ public class Field implements Collidable {
         draw();
 
         Plataform plataform = new Plataform(rectangle.getWidth()/3,100, 100, 10);
-        Plataform plataform1 = new Plataform(padding, 230, rectangle.getWidth() - offset, 10);
-        Plataform plataform2 = new Plataform(offset, 360, rectangle.getWidth() - offset + padding,10);
-        Plataform plataform3 = new Plataform(padding, 490, rectangle.getWidth() - offset, 10);
-        Plataform plataform4 = new Plataform(offset, 620, rectangle.getWidth() - offset + padding, 10);
-
+        Plataform plataform1 = new Plataform(padding, 200, rectangle.getWidth() - offset, 10);
+        Plataform plataform2 = new Plataform(offset, 300, rectangle.getWidth() - offset + padding,10);
+        Plataform plataform3 = new Plataform(padding, 400, rectangle.getWidth() - offset, 10);
+        Plataform plataform4 = new Plataform(offset, 500, rectangle.getWidth() - offset + padding, 10);
         Plataform plataform5 = new Plataform(padding,rectangle.getHeight(), rectangle.getWidth(),10);
     }
 

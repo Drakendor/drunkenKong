@@ -14,6 +14,8 @@ public class Plataform implements Collidable {
     public Plataform(int x, int y, int width, int height){
         this.rectangle = new Rectangle(x,y,width,height);
         draw();
+        comparePosition();
+
     }
 
     public void draw(){
@@ -26,6 +28,7 @@ public class Plataform implements Collidable {
     }
 
     public boolean comparePosition(){
+
         return true;
     }
 }
