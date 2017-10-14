@@ -69,27 +69,29 @@ public class Player implements KeyboardHandler, Movable {
 
     @Override
     public void move() {
-        x = 0;
-        y = 0;
+        while (alive) {
+            x = 0;
+            y = 0;
 
-        switch (currentOrie) {
-            case UP:
-                y = -PIXELS;
-                break;
-            case DOWN:
-                y = PIXELS;
-                break;
-            case LEFT:
-                x = -PIXELS;
-                break;
-            case RIGHT:
-                x = PIXELS;
-                break;
-            case JUMP:
-                y = -100;
-            default:
+            switch (currentOrie) {
+                case UP:
+                    y = -PIXELS;
+                    break;
+                case DOWN:
+                    y = PIXELS;
+                    break;
+                case LEFT:
+                    x = -PIXELS;
+                    break;
+                case RIGHT:
+                    x = PIXELS;
+                    break;
+                case JUMP:
+                    y = -100;
+                default:
+            }
+            this.rectangle.translate(x, y);
         }
-        this.rectangle.translate(x, y);
     }
 
     @Override
@@ -101,6 +103,7 @@ public class Player implements KeyboardHandler, Movable {
             WaterBottle waterBottle = (WaterBottle) collidable;
 
             if (rectangle.getX() == waterBottle.getX() + waterBottle.getWidth()) { //compare position player vs waterBottle
+               setAlive(false);
                 status = true;
             }
             status = false;
@@ -110,7 +113,9 @@ public class Player implements KeyboardHandler, Movable {
             Field field = (Field) collidable;
 
             if (rectangle.getWidth() == field.getWidth()) {
+                setAlive(false);
                 status = true;
+
             }
         }
 

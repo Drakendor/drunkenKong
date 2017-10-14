@@ -40,11 +40,8 @@ public class WaterBottle implements Movable {
     }
 
     @Override
-    public void move() {  /// a duvida é aqui!!!
-        while (comparePosition()) {
-            x = (rectangle.getX() + 10);
-        }
-        this.rectangle.translate(x, y);
+    public void move() {
+        this.rectangle.translate(5, 0);
     }
 
     public int getX() {

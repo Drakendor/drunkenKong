@@ -25,12 +25,14 @@ public class Plataform implements Collidable {
         rectangle.delete();
     }
 
-    public boolean comparePosition(Collidable collidable){
+    public boolean comparePosition(Collidable collidable) {
 
-        if (collidable instanceof Player){
+            return false;
+       /* if (collidable instanceof Player){
            Player player = (Player) collidable;
 
-
+        if (rectangle.)
        }
+    }*/
     }
 }
