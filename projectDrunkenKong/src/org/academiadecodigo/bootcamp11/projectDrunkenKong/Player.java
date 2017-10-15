@@ -6,7 +6,6 @@ import org.academiadecodigo.simplegraphics.keyboard.Keyboard;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardEvent;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardEventType;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardHandler;
-import org.academiadecodigo.simplegraphics.pictures.Picture;
 
 
 /**
@@ -23,11 +22,13 @@ public class Player implements KeyboardHandler, Movable {
     private boolean jump = false;
     private int x;
     private int y;
+    private int height = 20;
+    private int width = 60;
 
 
     public Player(String name) {
         this.name = name;
-        this.rectangle = new Rectangle(904, 728, 20, 40);
+        this.rectangle = new Rectangle(904, 728, height, width);
         draw();
         this.keyboard = new Keyboard(this);
         addHandlers(keyboard);
@@ -97,30 +98,18 @@ public class Player implements KeyboardHandler, Movable {
     @Override
     public boolean comparePosition(Collidable collidable) {
 
-        boolean status = false;
 
         if (collidable instanceof WaterBottle) {
             WaterBottle waterBottle = (WaterBottle) collidable;
 
             if (rectangle.getX() == waterBottle.getX() + waterBottle.getWidth()) { //compare position player vs waterBottle
-               setAlive(false);
-                status = true;
-            }
-            status = false;
-        }
-
-        if (collidable instanceof Field) {
-            Field field = (Field) collidable;
-
-            if (rectangle.getWidth() == field.getWidth()) {
-                setAlive(false);
-                status = true;
-
+                return true;
             }
         }
+        return false;
 
-        return status;
     }
+
 
     @Override
     public void keyPressed(KeyboardEvent keyboardEvent) {
@@ -175,6 +164,8 @@ public class Player implements KeyboardHandler, Movable {
         return jump;
     }
 
+
+
     public void setJump(boolean jump) {
         this.jump = jump;
     }
@@ -183,6 +174,37 @@ public class Player implements KeyboardHandler, Movable {
         return rectangle;
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
 
     public void setRectangle(Rectangle rectangle) {
         this.rectangle = rectangle;

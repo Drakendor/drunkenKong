@@ -41,7 +41,9 @@ public class WaterBottle implements Movable {
 
     @Override
     public void move() {
-        this.rectangle.translate(5, 0);
+        int x = 5;
+        int y = 0;
+        this.rectangle.translate(x, y);
     }
 
     public int getX() {
@@ -79,15 +81,13 @@ public class WaterBottle implements Movable {
     @Override
     public boolean comparePosition(Collidable collidable) {
 
-        boolean status = false;
-
         if (collidable instanceof Field) {
             Field field = (Field) collidable;
 
             if (rectangle.getX() + getWidth() == field.getWidth()) {
-                return status = true;
+                return true;
             }
         }
-        return status;
+        return false;
     }
 }

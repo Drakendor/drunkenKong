@@ -40,13 +40,10 @@ public class Game {
 
         while (true) {
 
-            field.draw();
-            cpu.draw();
-
             if (player.isAlive()) {
                 moveBottle();
-                // player.comparePosition(field);
-                //  player.move();
+               movePlayer();
+
             }
 
         }
@@ -58,7 +55,14 @@ public class Game {
         for (int i = 0; i < randomWaterBottle.length; i++) {
             randomWaterBottle[i].move();
         }
-
-
     }
+
+    private void movePlayer(){
+        if(player.comparePosition(field) == true){
+            player.setAlive(false);
+        }
+        player.move();
+    }
+
+
 }

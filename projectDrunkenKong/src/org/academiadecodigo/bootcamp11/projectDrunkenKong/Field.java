@@ -2,6 +2,7 @@ package org.academiadecodigo.bootcamp11.projectDrunkenKong;
 
 import org.academiadecodigo.simplegraphics.graphics.Color;
 import org.academiadecodigo.simplegraphics.graphics.Rectangle;
+import  org.academiadecodigo.bootcamp11.projectDrunkenKong.Player;
 
 /**
  * Created by codecadet on 09/10/17.
@@ -22,7 +23,6 @@ public class Field implements Collidable {
         Plataform plataform2 = new Plataform(offset, 360, rectangle.getWidth() - offset + padding, 10);
         Plataform plataform3 = new Plataform(padding, 490, rectangle.getWidth() - offset, 10);
         Plataform plataform4 = new Plataform(offset, 620, rectangle.getWidth() - offset + padding, 10);
-
         Plataform plataform5 = new Plataform(padding, rectangle.getHeight(), rectangle.getWidth(), 10);
     }
 
@@ -39,15 +39,16 @@ public class Field implements Collidable {
 
         if (collidable instanceof Player) {
             Player player = (Player) collidable;
-        }
 
+
+            if (rectangle.getX() == player.getX() || rectangle.getWidth() == player.getWidth() ) { //compare position player vs Field
+                return true;
+            }
+        }
         return false;
     }
 
 
-    public int getPadding() {
-        return padding;
-    }
 
     public int getWidth() {
         return rectangle.getWidth();
