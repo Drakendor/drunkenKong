@@ -1,222 +1,491 @@
-package org.academiadecodigo.bootcamp11.projectDrunkenKong;
+package org.academiadecodigo.bootcamp11.drunkenkong;
 
-import org.academiadecodigo.simplegraphics.graphics.Color;
-import org.academiadecodigo.simplegraphics.graphics.Rectangle;
 import org.academiadecodigo.simplegraphics.keyboard.Keyboard;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardEvent;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardEventType;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardHandler;
+import org.academiadecodigo.simplegraphics.pictures.Picture;
 
-
-/**
- * Created by codecadet on 09/10/17.
- */
 public class Player implements KeyboardHandler, Movable {
 
-    private Rectangle rectangle;  //picture
-    private static final int PIXELS = 20;
+    private Picture picture;  //picture
+    private Field field;
+    private int indexPreviousPlataform;
+    private Direction direction;
     private boolean alive = true;
-    Orientation currentOrie;
-    private Keyboard keyboard;
-    private String name;
+    private boolean walk = false;
     private boolean jump = false;
-    private int x;
-    private int y;
-    private int height = 20;
-    private int width = 60;
+    private boolean upstairs = false;
+    private Sound jumpSound = new Sound("/resources/jump.wav");
 
 
-    public Player(String name) {
-        this.name = name;
-        this.rectangle = new Rectangle(904, 728, height, width);
+    public Player(Field field) {
+        this.field = field;
+        this.picture = new Picture(750, 555,"resources/mario-nintendo-mario-kart transparent 3.png");
         draw();
-        this.keyboard = new Keyboard(this);
-        addHandlers(keyboard);
-      /*Picture pic = new Picture(730, 590, “http://www.ministryofpinball.com/media/catalog/category/Super_Paper_Mario_MoP_1.png“);
-      pic.grow(-80, -80);
-      pic.draw();*/
+
+        createKeyboardEvents();
     }
-
-    private void addHandlers(Keyboard keyboard) {
-
-        int[] keys = new int[]{
-                KeyboardEvent.KEY_W,
-                KeyboardEvent.KEY_S,
-                KeyboardEvent.KEY_A,
-                KeyboardEvent.KEY_D,
-                KeyboardEvent.KEY_SPACE
-        };
-
-        for (int key : keys) {
-            KeyboardEvent event = new KeyboardEvent();
-            event.setKey(key);
-            event.setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
-            keyboard.addEventListener(event);
-        }
-    }
-
 
     @Override
     public void draw() {
-        rectangle.setColor(Color.BLUE);
-        rectangle.fill();
-
+        picture.grow(6,5);
+        picture.draw();
     }
 
     @Override
     public void hide() {
-
+        picture.delete();
     }
 
     @Override
     public void move() {
-        while (alive) {
-            x = 0;
-            y = 0;
 
-            switch (currentOrie) {
+        if (!alive) {
+            return;
+        }
+        int index = currentPlataform();
+        if (index == -1) {
+            return;
+        }
+
+        if (direction == null) {
+            picture.translate(0, 0);
+            return;
+        }
+
+        if (isWalk()) {
+            switch (direction) {
                 case UP:
-                    y = -PIXELS;
+                    moveUp();
                     break;
                 case DOWN:
-                    y = PIXELS;
+                    moveDown();
                     break;
                 case LEFT:
-                    x = -PIXELS;
+                    picture.load("resources/mario-nintendo-mario-kart transparent 3.png");
+                    moveLeft();
                     break;
                 case RIGHT:
-                    x = PIXELS;
+                    picture.load("resources/mario-nintendo-mario-kart transparent 3 Right.png");
+                    moveRight();
                     break;
-                case JUMP:
-                    y = -100;
                 default:
+                    picture.translate(0, 0);
+                    break;
             }
-            this.rectangle.translate(x, y);
         }
     }
 
+    private void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    private void moveUp() {
+        int indexCurrent = currentPlataform();
+
+        if (indexPreviousPlataform == 0) {
+            indexPreviousPlataform = indexCurrent;
+        }
+        //Checks if the index of the plataform has changed, if it did, stop to climb the stairs
+        if (indexCurrent != indexPreviousPlataform) {
+            indexPreviousPlataform = indexCurrent;
+            setUpstairs(false);
+            return;
+        }
+        //When get the higher plataform, it stop climbing and, that way, we don't have a NullPointer Exception
+        if(indexCurrent == 0){
+            return;
+        }
+        //Checks the right position to climb, only when we have a stair
+        if (field.getStairs()[indexCurrent - 1].getMinX() <= picture.getX() &&
+                field.getStairs()[indexCurrent - 1].getMaxX() >= picture.getX()) {
+            picture.translate(0, -5);
+            indexPreviousPlataform = indexCurrent;
+            picture.load("resources/Donkey_Kong_-_Back_Art.png");
+        }
+
+    }
+
+    private void moveDown() {
+        int indexCurrent = currentPlataform();
+
+        if (indexPreviousPlataform == 0) {
+            indexPreviousPlataform = indexCurrent;
+        }
+
+        if (colisionPlataformY(field.getPlataforms()[currentPlataform()])) {
+            return;
+        }
+
+        if (indexCurrent != indexPreviousPlataform) {
+            indexPreviousPlataform = indexCurrent;
+            return;
+        }
+        if(isUpstairs()){
+            picture.translate(0, 5);
+            indexPreviousPlataform = indexCurrent;
+        }
+
+    }
+
+    private void moveLeft() {
+        int y = 0;
+        if (colisionFieldLeft()) {
+            return;
+        }
+        if (!colisionPlataformY(field.getPlataforms()[currentPlataform()])) {
+            return;
+        }
+        if (currentPlataform() == 0 && colisionPlataformXLeft(field.getPlataforms()[currentPlataform()])) {
+            setWalk(false);
+            return;
+        }
+        if (currentPlataform() % 2 == 0 && colisionPlataformXLeft(field.getPlataforms()[currentPlataform()])) {
+            setWalk(false);
+            return;
+        }
+        if (isJumping()) {
+            //Check if the result of the jump goes beyond the field
+            y = -(Field.PLATAFORM_GAP - picture.getHeight() - Plataform.PLATAFORM_THICK);
+            if (picture.getX() + picture.getWidth() - 60 < field.getPadding()) {
+                picture.translate(-(picture.getX() - field.getPadding()), y);
+                return;
+            }
+            picture.translate(-(WaterBottles.BOTTLE_WIDTH + 60), y);
+            return;
+        }
+        picture.translate(-5, y);
+    }
+
+    private void moveRight() {
+        int y = 0;
+        if (colisionFieldRight()) {
+            return;
+        }
+        if (!colisionPlataformY(field.getPlataforms()[currentPlataform()])) {
+            return;
+        }
+        if (currentPlataform() == 0 && colisionPlataformXRight(field.getPlataforms()[currentPlataform()])) {
+            return;
+        }
+        if (currentPlataform() % 2 != 0 && colisionPlataformXRight(field.getPlataforms()[currentPlataform()])) {
+            return;
+        }
+        if (isJumping()) {
+            y = -(Field.PLATAFORM_GAP - picture.getHeight() - Plataform.PLATAFORM_THICK);
+            if (picture.getX() + picture.getWidth() + 60 > field.getWidth()) {
+                picture.translate(field.getWidth() - picture.getWidth() - picture.getX(), y);
+                return;
+            }
+            picture.translate(WaterBottles.BOTTLE_WIDTH + 60, y);
+            return;
+        }
+        picture.translate(5, y);
+    }
+
+    private void jump() {
+
+        if (!isAlive()) {
+            return;
+        }
+
+        if (isWalk() && !isJumping()) {
+            return;
+        }
+        if (isUpstairs() && !isJumping()) {
+            setJump(false);
+            picture.translate(0, 0);
+            return;
+        }
+        if (!isWalk() && !isJumping() ) {
+            if (!colisionPlataformY(field.getPlataforms()[currentPlataform()])) {
+                return;
+            }
+            picture.translate(0, -(Field.PLATAFORM_GAP - picture.getHeight() - Plataform.PLATAFORM_THICK));
+
+        }
+        if (isJumping()) {
+            if (colisionPlataformY(field.getPlataforms()[currentPlataform()])) {
+                return;
+            }
+            picture.translate(0,(Field.PLATAFORM_GAP - picture.getHeight() - Plataform.PLATAFORM_THICK));
+            setJump(false);
+        }
+
+    }
+
     @Override
-    public boolean comparePosition(Collidable collidable) {
+    public boolean comparePosition(Collidable object) {
+        if (object instanceof WaterBottles) {
+            int x = ((WaterBottles) object).getX();
+            int y = ((WaterBottles) object).getY();
+            int width = ((WaterBottles) object).getWidth();
+            int height = ((WaterBottles) object).getHeight();
+            return checkColision(x, y, width, height);
+        }
+        return false;
+    }
 
+    public boolean scorePoints(WaterBottles waterBottles){
+        //checks if the player and the bottle are on the same plataform
+        if (currentPlataform() * Field.PLATAFORM_GAP + Field.FIRST_PLATAFORMGAP != waterBottles.getY() + waterBottles.getHeight()){
+            return false;
+        }
+        // Checks if the position of the player is above the water bottle
+        if (picture.getY() < waterBottles.getY() &&
+                picture.getX() + 10 < waterBottles.getX() + waterBottles.getWidth() &&
+                picture.getX() + picture.getWidth() + 10 > waterBottles.getX()){
+            return true;
+        }
+        return false;
+    }
 
-        if (collidable instanceof WaterBottle) {
-            WaterBottle waterBottle = (WaterBottle) collidable;
+    public boolean backPlataform(){
+        int indexPlataform = currentPlataform();
+        return colisionPlataformY(field.getPlataforms()[indexPlataform]);
+    }
 
-            if (rectangle.getX() == waterBottle.getX() + waterBottle.getWidth()) { //compare position player vs waterBottle
+    public boolean makeTheTop() throws InterruptedException {
+        if(picture.getY() == field.getPlataforms()[0].getY()){
+            picture.load("resources/Celebration.png");
+            Thread.sleep(5000);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkColision(int x, int y, int width, int height) {
+        if (picture.getX() + picture.getWidth() >= x && picture.getX() <= x + width) {
+            if (picture.getY() + picture.getHeight() >= y && picture.getY() <= y + height) {
                 return true;
             }
         }
         return false;
-
     }
 
-
-    @Override
-    public void keyPressed(KeyboardEvent keyboardEvent) {
-
-        switch (keyboardEvent.getKey()) {
-            case KeyboardEvent.KEY_W:
-                System.out.println("UP");
-                currentOrie = Orientation.UP;
-
-                break;
-            case KeyboardEvent.KEY_S:
-                System.out.println("DOWN");
-                System.out.println(rectangle.getY());
-                currentOrie = Orientation.DOWN;
-                break;
-
-            case KeyboardEvent.KEY_A:
-                System.out.println("LEFT");
-                currentOrie = Orientation.LEFT;
-                break;
-
-            case KeyboardEvent.KEY_D:
-                System.out.println("RIGHT");
-                currentOrie = Orientation.RIGHT;
-                break;
-            case KeyboardEvent.KEY_SPACE:
-                System.out.println("JUMP");
-                currentOrie = Orientation.JUMP;
-                setJump(true);
-                break;
-
-            default:
-
+    //returns the index of the current plataform
+    private int currentPlataform() {
+        for (int i = 0; i < field.getPlataforms().length; i++) {
+            if (picture.getY() + this.getHeight() <= field.getPlataforms()[i].getY()) {
+                return i;
+            }
         }
-        move();
+        return -1;
+    }
+
+    //checks if the player is in contact with the plataform that is passed as an argument
+    private boolean colisionPlataformY(Plataform plataform) {
+        if (picture.getY() + getHeight() >= plataform.getY()) {
+            return true;
+        }
+        return false;
+    }
+
+    //check if the player is at the right edge of the plataform
+    private boolean colisionPlataformXRight(Plataform plataform) {
+        if (picture.getX() + picture.getWidth() >= plataform.getX() + plataform.getWidth()) {
+            return true;
+        }
+        return false;
+    }
+
+    //check if the player is at the left edge of the plataform
+    private boolean colisionPlataformXLeft(Plataform plataform) {
+        if (picture.getX() <= plataform.getX()) {
+            return true;
+        }
+        return false;
+    }
+
+    //check if the player is at the right edge of the field
+    private boolean colisionFieldRight() {
+        if (picture.getX() + getWidth() > field.getWidth()) {
+            return true;
+        }
+        return false;
+    }
+
+    //check if the player is at the left edge of the field
+    private boolean colisionFieldLeft() {
+        if (picture.getX() <= field.getPadding()) {
+            return true;
+        }
+        return false;
+    }
+
+    public void uploadPicture(){
+        picture.load("resources/MarioDead.png");
     }
 
     @Override
-    public void keyReleased(KeyboardEvent keyboardEvent) {
+    public void keyPressed(KeyboardEvent e) {
+
+        int code = e.getKey();
+
+        if (code == KeyboardEvent.KEY_A) {
+            setDirection(Direction.LEFT);
+            setWalk(true);
+        }
+        if (code == KeyboardEvent.KEY_D) {
+            setDirection(Direction.RIGHT);
+            setWalk(true);
+        }
+        if (code == KeyboardEvent.KEY_W) {
+            setDirection(Direction.UP);
+            setWalk(true);
+            setUpstairs(true);
+        }
+        if (code == KeyboardEvent.KEY_S) {
+            setDirection(Direction.DOWN);
+            setWalk(true);
+            setUpstairs(true);
+        }
+        if (code == KeyboardEvent.KEY_SPACE) {
+            //setDirection(Direction.JUMP);
+            int indexCurrent = currentPlataform();
+            if (indexCurrent != 0) {
+                int yInf = field.getPlataforms()[indexCurrent].getY();
+                int ySup = field.getPlataforms()[indexCurrent - 1].getY();
+                if (isJumping() || picture.getHeight() + picture.getY() < yInf &&
+                        picture.getHeight() + picture.getY() > ySup) {
+                    return;
+                }
+            }
+            jump();
+            setJump(true);
+            jumpSound.play(true);
+        }
     }
 
+    @Override
+    public void keyReleased(KeyboardEvent e) {
+        int code = e.getKey();
+
+        if (code == KeyboardEvent.KEY_A) {
+            setWalk(false);
+        }
+        if (code == KeyboardEvent.KEY_D) {
+            setWalk(false);
+        }
+        if (code == KeyboardEvent.KEY_W) {
+            setWalk(false);
+            setUpstairs(false);
+        }
+        if (code == KeyboardEvent.KEY_S) {
+            setWalk(false);
+            setUpstairs(false);
+        }
+        if (code == KeyboardEvent.KEY_SPACE) {
+            int indexCurrent = currentPlataform();
+            if (indexCurrent != 0) {
+                if (!isJumping() && isUpstairs()) {
+                    return;
+                }
+            }
+            jump();
+            setJump(false);
+        }
+    }
 
     public boolean isAlive() {
         return alive;
     }
 
-    public void setAlive(boolean alive) {
-        this.alive = alive;
+    public void dead() {
+        this.alive = false;
     }
 
-    public boolean isJump() {
-        return jump;
+    private boolean isJumping() {
+        return this.jump;
     }
 
-
-
-    public void setJump(boolean jump) {
+    private void setJump(boolean jump) {
         this.jump = jump;
     }
 
-    public Rectangle getRectangle() {
-        return rectangle;
+    private void setWalk(boolean walk) {
+        this.walk = walk;
     }
 
-    public int getX() {
-        return x;
+    public boolean isWalk() {
+        return this.walk;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public boolean isUpstairs() {
+        return this.upstairs;
     }
 
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
+    public void setUpstairs(boolean upstairs) {
+        this.upstairs = upstairs;
     }
 
     public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
+        return picture.getHeight();
     }
 
     public int getWidth() {
-        return width;
+        return picture.getWidth();
     }
 
-    public void setWidth(int width) {
-        this.width = width;
+    public Picture getPicture() {
+        return picture;
     }
 
-    public void setRectangle(Rectangle rectangle) {
-        this.rectangle = rectangle;
-    }
+    private void createKeyboardEvents() {
 
-    public enum Orientation {
+        Keyboard key = new Keyboard(this);
+        KeyboardEvent event = new KeyboardEvent();
+        event.setKey(KeyboardEvent.KEY_D);
+        event.setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
+        key.addEventListener(event);
 
-        LEFT,
-        RIGHT,
-        UP,
-        DOWN,
-        JUMP
+        KeyboardEvent event1 = new KeyboardEvent();
+        event1.setKey(KeyboardEvent.KEY_A);
+        event1.setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
+        key.addEventListener(event1);
 
+        KeyboardEvent event2 = new KeyboardEvent();
+        event2.setKey(KeyboardEvent.KEY_SPACE);
+        event2.setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
+        key.addEventListener(event2);
+
+        KeyboardEvent event3 = new KeyboardEvent();
+        event3.setKey(KeyboardEvent.KEY_SPACE);
+        event3.setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
+        key.addEventListener(event3);
+
+        KeyboardEvent event4 = new KeyboardEvent();
+        event4.setKey(KeyboardEvent.KEY_W);
+        event4.setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
+        key.addEventListener(event4);
+
+        KeyboardEvent event5 = new KeyboardEvent();
+        event5.setKey(KeyboardEvent.KEY_A);
+        event5.setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
+        key.addEventListener(event5);
+
+        KeyboardEvent event6 = new KeyboardEvent();
+        event6.setKey(KeyboardEvent.KEY_D);
+        event6.setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
+        key.addEventListener(event6);
+
+        KeyboardEvent event7 = new KeyboardEvent();
+        event7.setKey(KeyboardEvent.KEY_W);
+        event7.setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
+        key.addEventListener(event7);
+
+        KeyboardEvent event8 = new KeyboardEvent();
+        event8.setKey(KeyboardEvent.KEY_S);
+        event8.setKeyboardEventType(KeyboardEventType.KEY_PRESSED);
+        key.addEventListener(event8);
+
+        KeyboardEvent event9 = new KeyboardEvent();
+        event9.setKey(KeyboardEvent.KEY_S);
+        event9.setKeyboardEventType(KeyboardEventType.KEY_RELEASED);
+        key.addEventListener(event9);
     }
 }
+
+
+

@@ -1,36 +1,54 @@
-package org.academiadecodigo.bootcamp11.projectDrunkenKong;
+package org.academiadecodigo.bootcamp11.drunkenkong;
 
+import org.academiadecodigo.simplegraphics.pictures.Picture;
 
-import org.academiadecodigo.simplegraphics.graphics.Color;
-import org.academiadecodigo.simplegraphics.graphics.Rectangle;
+public class CPU implements Drawable{
 
-/**
- * Created by codecadet on 10/10/17.
- */
-public class Cpu implements Drawable {
+    private Picture picture;
+    private Field field;
+    private int count = 100;
 
-    private WaterBottle waterBotle;
-    private Rectangle rectangle;
-
-    public Cpu() {
-
-        this.rectangle = new Rectangle(10, 180, 50, 50);
+    public CPU(Field field){
+        this.picture = new Picture(20,200-66,"resources/BowserStart.png");
         draw();
-    }
-
-    public WaterBottle createWaterBottle() {
-
-        return new WaterBottle();
+        this.field = field;
     }
 
     @Override
     public void draw() {
-        rectangle.setColor(Color.RED);
-        rectangle.fill();
+        picture.grow(10,10);
+        picture.draw();
+    }
+
+    public void uploadPicture(){
+        count--;
+        if(count <= 0) {
+            count = 100;
+            picture.load("resources/BowserStart.png");
+        }
+        if(count < 10){
+            picture.load("resources/BowserCpu.png");
+            count--;
+            return;
+        }
+        if(count < 20){
+            picture.load("resources/Bowser2.png");
+            count--;
+            return;
+        }
+        if(count < 30){
+            picture.load("resources/Bowser1.png");
+            count--;
+        }
+    }
+
+    public void uploadFirstPicture(){
+        picture.load("resources/BowserStart.png");
     }
 
     @Override
     public void hide() {
-        rectangle.delete();
+        picture.delete();
     }
+
 }
