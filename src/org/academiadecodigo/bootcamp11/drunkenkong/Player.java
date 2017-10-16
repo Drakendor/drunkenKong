@@ -16,7 +16,7 @@ public class Player implements KeyboardHandler, Movable {
     private boolean walk = false;
     private boolean jump = false;
     private boolean upstairs = false;
-    private Sound jumpSound = new Sound("/resources/jump.wav");
+    private Sound jumpSound = new Sound("/resources/jump.wav");  // line 358
 
 
 
@@ -355,7 +355,7 @@ public class Player implements KeyboardHandler, Movable {
             }
             jump();
             setJump(true);
-            jumpSound.play(true);
+            jumpSound.play(true);  // Jump sound
         }
     }
 

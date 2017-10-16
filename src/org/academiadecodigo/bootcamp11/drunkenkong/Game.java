@@ -7,10 +7,10 @@ public class Game {
     private CPU cpu;
     private Player player;
     private int delay = 20;
-    private Sound soundGameover = new Sound("/resources/voiceGO.wav");
-    private Sound sound = new Sound("/resources/music.wav");
-    private Sound winSound = new Sound("/resources/winMusic.wav");
-    private Sound beerSound = new Sound("/resources/beerOpen.wav");
+    private Sound soundGameover = new Sound("/resources/voiceGO.wav");  // dead sound
+    private Sound sound = new Sound("/resources/music.wav");  // Background music
+    private Sound winSound = new Sound("/resources/winMusic.wav"); // victory sound
+    private Sound beerSound = new Sound("/resources/beerOpen.wav");  // Beer Open sound
 
     public void init() {
 
@@ -55,23 +55,21 @@ public class Game {
 
     public void start() throws InterruptedException {
 
-        sound.play(true);
+        sound.play(true);  // Background music
 
         while (true) {
 
             if (gameOver()) {
-                sound.stop();
-                soundGameover.play(true);
+                sound.stop();  // stop background music
+                soundGameover.play(true);  // play dead player sound
                 return;
             }
             Thread.sleep(delay);
             moveAll();
             uploadPictureCpu();
             if(winRound()){
+             sound.stop();
                 delay = delay - 5;
-                sound.stop();
-                winSound.play(true);
-                beerSound.play(true);
                 init();
             }
         }
@@ -98,7 +96,7 @@ public class Game {
 
     private boolean winRound() throws InterruptedException {
         if(player.makeTheTop()){
-            return true;
+           return true;
         }
         return false;
     }
