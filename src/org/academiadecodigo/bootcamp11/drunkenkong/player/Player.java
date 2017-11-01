@@ -1,5 +1,12 @@
-package org.academiadecodigo.bootcamp11.drunkenkong;
+package org.academiadecodigo.bootcamp11.drunkenkong.player;
 
+import org.academiadecodigo.bootcamp11.drunkenkong.field.Field;
+import org.academiadecodigo.bootcamp11.drunkenkong.field.Plataform;
+import org.academiadecodigo.bootcamp11.drunkenkong.game.Collidable;
+import org.academiadecodigo.bootcamp11.drunkenkong.game.Movable;
+import org.academiadecodigo.bootcamp11.drunkenkong.gameobjects.WaterBottles;
+import org.academiadecodigo.bootcamp11.drunkenkong.player.Direction;
+import org.academiadecodigo.bootcamp11.drunkenkong.sound.Sound;
 import org.academiadecodigo.simplegraphics.keyboard.Keyboard;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardEvent;
 import org.academiadecodigo.simplegraphics.keyboard.KeyboardEventType;
@@ -19,12 +26,10 @@ public class Player implements KeyboardHandler, Movable {
     private Sound jumpSound = new Sound("/resources/jump.wav");  // line 358
 
 
-
     public Player(Field field) {
         this.field = field;
         this.picture = new Picture(750, 555,"resources/mario-nintendo-mario-kart transparent 3.png");
         draw();
-
         createKeyboardEvents();
     }
 
@@ -99,8 +104,8 @@ public class Player implements KeyboardHandler, Movable {
             return;
         }
         //Checks the right position to climb, only when we have a stair
-        if (field.getStairs()[indexCurrent - 1].getMinX() <= picture.getX() &&
-                field.getStairs()[indexCurrent - 1].getMaxX() >= picture.getX()) {
+        if (field.getStairs()[indexCurrent - 1].getMinX() - 10 <= picture.getX() &&
+                field.getStairs()[indexCurrent - 1].getMaxX() >= picture.getX() + 10 ) {
             picture.translate(0, -5);
             indexPreviousPlataform = indexCurrent;
             picture.load("resources/Donkey_Kong_-_Back_Art.png");
@@ -149,11 +154,11 @@ public class Player implements KeyboardHandler, Movable {
         if (isJumping()) {
             //Check if the result of the jump goes beyond the field
             y = -(Field.PLATAFORM_GAP - picture.getHeight() - Plataform.PLATAFORM_THICK);
-            if (picture.getX() + picture.getWidth() - 60 < field.getPadding()) {
-                picture.translate(-(picture.getX() - field.getPadding()), y);
+            if (picture.getX() - 75 <= field.getPlataforms()[currentPlataform()].getX()) {
+                picture.translate(-(picture.getX() - field.getPlataforms()[currentPlataform()].getX()), y);
                 return;
             }
-            picture.translate(-(WaterBottles.BOTTLE_WIDTH + 60), y);
+            picture.translate(-(WaterBottles.BOTTLE_WIDTH + 75), y);
             return;
         }
         picture.translate(-5, y);
@@ -175,11 +180,14 @@ public class Player implements KeyboardHandler, Movable {
         }
         if (isJumping()) {
             y = -(Field.PLATAFORM_GAP - picture.getHeight() - Plataform.PLATAFORM_THICK);
-            if (picture.getX() + picture.getWidth() + 60 > field.getWidth()) {
-                picture.translate(field.getWidth() - picture.getWidth() - picture.getX(), y);
+            if (picture.getX() + picture.getWidth() + 100 >
+                            field.getPlataforms()[currentPlataform()].getWidth() + field.getPlataforms()[currentPlataform()].getX()) {
+
+                picture.translate(field.getPlataforms()[currentPlataform()].getWidth() + field.getPlataforms()[currentPlataform()].getX() -
+                        picture.getX() - picture.getWidth() , y);
                 return;
             }
-            picture.translate(WaterBottles.BOTTLE_WIDTH + 60, y);
+            picture.translate(WaterBottles.BOTTLE_WIDTH + 75, y);
             return;
         }
         picture.translate(5, y);
@@ -228,32 +236,8 @@ public class Player implements KeyboardHandler, Movable {
         return false;
     }
 
-    public boolean scorePoints(WaterBottles waterBottles){
-        //checks if the player and the bottle are on the same plataform
-        if (currentPlataform() * Field.PLATAFORM_GAP + Field.FIRST_PLATAFORMGAP != waterBottles.getY() + waterBottles.getHeight()){
-            return false;
-        }
-        // Checks if the position of the player is above the water bottle
-        if (picture.getY() < waterBottles.getY() &&
-                picture.getX() + 10 < waterBottles.getX() + waterBottles.getWidth() &&
-                picture.getX() + picture.getWidth() + 10 > waterBottles.getX()){
-            return true;
-        }
-        return false;
-    }
-
-    public boolean backPlataform(){
-        int indexPlataform = currentPlataform();
-        return colisionPlataformY(field.getPlataforms()[indexPlataform]);
-    }
-
     public boolean makeTheTop() throws InterruptedException {
-        if(picture.getY() == field.getPlataforms()[0].getY()){
-            picture.load("resources/Celebration.png");
-            Thread.sleep(5000);
-            return true;
-        }
-        return false;
+        return (picture.getY() == field.getPlataforms()[0].getY());
     }
 
     private boolean checkColision(int x, int y, int width, int height) {
@@ -315,10 +299,6 @@ public class Player implements KeyboardHandler, Movable {
         return false;
     }
 
-    public void uploadPicture(){
-        picture.load("resources/MarioDead.png");
-    }
-
     @Override
     public void keyPressed(KeyboardEvent e) {
 
@@ -343,7 +323,6 @@ public class Player implements KeyboardHandler, Movable {
             setUpstairs(true);
         }
         if (code == KeyboardEvent.KEY_SPACE) {
-            //setDirection(Direction.JUMP);
             int indexCurrent = currentPlataform();
             if (indexCurrent != 0) {
                 int yInf = field.getPlataforms()[indexCurrent].getY();
@@ -393,7 +372,7 @@ public class Player implements KeyboardHandler, Movable {
         return alive;
     }
 
-    public void dead() {
+    public void dead()  {
         this.alive = false;
     }
 
@@ -409,16 +388,24 @@ public class Player implements KeyboardHandler, Movable {
         this.walk = walk;
     }
 
-    public boolean isWalk() {
+    private boolean isWalk() {
         return this.walk;
     }
 
-    public boolean isUpstairs() {
+    private boolean isUpstairs() {
         return this.upstairs;
     }
 
-    public void setUpstairs(boolean upstairs) {
+    private void setUpstairs(boolean upstairs) {
         this.upstairs = upstairs;
+    }
+
+    public int getX(){
+        return picture.getX();
+    }
+
+    public int getY(){
+        return picture.getY();
     }
 
     public int getHeight() {
@@ -427,10 +414,6 @@ public class Player implements KeyboardHandler, Movable {
 
     public int getWidth() {
         return picture.getWidth();
-    }
-
-    public Picture getPicture() {
-        return picture;
     }
 
     private void createKeyboardEvents() {

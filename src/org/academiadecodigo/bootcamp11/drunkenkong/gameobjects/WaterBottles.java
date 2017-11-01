@@ -1,6 +1,10 @@
-package org.academiadecodigo.bootcamp11.drunkenkong;
+package org.academiadecodigo.bootcamp11.drunkenkong.gameobjects;
 
 
+import org.academiadecodigo.bootcamp11.drunkenkong.field.Field;
+import org.academiadecodigo.bootcamp11.drunkenkong.field.Plataform;
+import org.academiadecodigo.bootcamp11.drunkenkong.game.Collidable;
+import org.academiadecodigo.bootcamp11.drunkenkong.game.Movable;
 import org.academiadecodigo.simplegraphics.pictures.Picture;
 
 public class WaterBottles implements Movable {
@@ -8,7 +12,6 @@ public class WaterBottles implements Movable {
     private Picture picture;
     private Field field;
     private int count;
-    public static final int OFFSET_TOP_PLATAFORM = 100;
     public static final int BOTTLE_WIDTH = 30;
     public static final int BOTTLE_HEIGHT = 30;
 
@@ -21,7 +24,7 @@ public class WaterBottles implements Movable {
 
     // take in consideration the height of the rectangle on the Y argument.
     public WaterBottles(int x, int y, Field field) {
-        this.picture = new Picture(x, ((y * Field.PLATAFORM_GAP) + OFFSET_TOP_PLATAFORM - BOTTLE_WIDTH), "resources/WatterBottle30x30.png");
+        this.picture = new Picture(x, ((y * Field.PLATAFORM_GAP) + Field.FIRST_PLATAFORMGAP - BOTTLE_WIDTH), "resources/WatterBottle30x30.png");
         draw();
         this.field = field;
     }
@@ -33,7 +36,12 @@ public class WaterBottles implements Movable {
 
     @Override
     public void hide() {
-        picture.translate(-(field.getWidth() - field.getPadding() - picture.getWidth()),-(field.getHeight()-field.getPlataforms()[1].getY()));
+        // 20 -> the difference between width of the CPU and the bottle
+        picture.translate(-(field.getWidth() - 20 - field.getPadding() - picture.getWidth()),-(field.getHeight()-field.getPlataforms()[1].getY()));
+    }
+
+    public void delete(){
+        picture.delete();
     }
 
     @Override
@@ -66,7 +74,7 @@ public class WaterBottles implements Movable {
         }
     }
 
-    public void moveRight() {
+    private void moveRight() {
         Plataform plataform = field.getPlataforms()[field.getPlataforms().length - 1];
         if (picture.getX() > field.getWidth() - field.getOffset() + field.getPadding() && picture.getY() + picture.getHeight() < plataform.getY()) {
             picture.translate(2, 10);
@@ -76,7 +84,7 @@ public class WaterBottles implements Movable {
 
     }
 
-    public void moveLeft() {
+    private void moveLeft() {
         Plataform[] plataform = field.getPlataforms();
         for (int i = 0; i < plataform.length; i++) {
             if (i % 2 == 0 && picture.getX() < 70 && picture.getY() + picture.getHeight() == plataform[i].getY()) {

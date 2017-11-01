@@ -1,5 +1,6 @@
-package org.academiadecodigo.bootcamp11.drunkenkong;
+package org.academiadecodigo.bootcamp11.drunkenkong.field;
 
+import org.academiadecodigo.bootcamp11.drunkenkong.game.Drawable;
 import org.academiadecodigo.simplegraphics.graphics.Color;
 import org.academiadecodigo.simplegraphics.graphics.Rectangle;
 
@@ -10,7 +11,7 @@ public class Stair implements Drawable {
 
     private int x;
     private int y;
-    public static final int WIDTH = 60;
+    public static final int WIDTH = 70;
     public static final int THICK = 10;
     private Rectangle[] rectangles;
 
@@ -26,11 +27,11 @@ public class Stair implements Drawable {
             if (i == 0) {
                 rectangles[i] = new Rectangle(x, y, THICK, Field.PLATAFORM_GAP);
             }
-            if (i == 5) {
+            if (i == rectangles.length - 1) {
                 rectangles[i] = new Rectangle(x + WIDTH - THICK, y, THICK, Field.PLATAFORM_GAP);
             }
-            if (i < 5 && i > 0) {
-                rectangles[i] = new Rectangle(x,  y + Field.PLATAFORM_GAP * i / 5, WIDTH, THICK);
+            if (i < rectangles.length - 1 && i > 0) {
+                rectangles[i] = new Rectangle(x,  y + Field.PLATAFORM_GAP * i / (rectangles.length - 1), WIDTH, THICK);
             }
         }
         draw();

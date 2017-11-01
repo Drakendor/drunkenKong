@@ -1,6 +1,7 @@
-package org.academiadecodigo.bootcamp11.drunkenkong;
+package org.academiadecodigo.bootcamp11.drunkenkong.field;
 
 
+import org.academiadecodigo.bootcamp11.drunkenkong.game.Collidable;
 import org.academiadecodigo.simplegraphics.graphics.Color;
 import org.academiadecodigo.simplegraphics.graphics.Rectangle;
 

@@ -1,4 +1,4 @@
-package org.academiadecodigo.bootcamp11.drunkenkong;
+package org.academiadecodigo.bootcamp11.drunkenkong.player;
 
 public enum Direction {
     LEFT,
